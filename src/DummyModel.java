@@ -7,7 +7,7 @@ public class DummyModel implements IBouncingBallsModel {
 	private final double areaWidth;
 	private final double areaHeight;
 
-	private double x, y, vx, vy, r;
+	private double x, y, vx, vy, r, mass;
 
 	public DummyModel(double width, double height) {
 		this.areaWidth = width;
@@ -17,6 +17,7 @@ public class DummyModel implements IBouncingBallsModel {
 		vx = 2.3;
 		vy = 1;
 		r = 1;
+		mass = 20;
 	}
 
 	@Override

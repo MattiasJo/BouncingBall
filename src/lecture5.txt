@@ -1,0 +1,55 @@
+Bouncing balls
+===================================================================
+
+The states (on the y-axis) are y and v_y
+
+y'   =  v_y
+v_y' =  -g
+
+Note that this follows the standard form.
+
+
+Elastic collision
+===================================================================
+
+           m1      m2
+           O->     O->
+Before:    u1      u2
+After:     v1      v2  
+
+
+Conservation of momentum
+
+
+(1)  m1 v1 + m2 v2  =  m1 u1 + m2 u2
+                      _______________
+                      =I (known value)
+
+
+Conservation of kinetic energy
+
+(2)  m1 v1^2  +  m2 v2^2   =   m1 u1^2  +  m2 u2^2
+     -------     -------       -------     -------
+        2           2             2           2
+
+Elimination of one variable (v1 or v2) gives a second order
+equation. If u1<>u2 this equation has two solutions, one for the
+solution before the collision, the other for the solution after.
+
+For the solution after collisions we obtain from (1) and (2)
+
+
+v2 -v1  =   -( u2 -u1 )
+            ___________
+            =R (known value)
+
+that is, the relative velocity changes signs at the collision. v1 and
+v2 are then obtained from the system of equations:
+
+
+m1 v1 + m2 v2  = I
+
+v2 - v1 = R
+
+
+which is easier to solve.
