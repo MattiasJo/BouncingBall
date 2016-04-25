@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ public final class BouncingBalls extends Animator {
 
 	private static final double PIXELS_PER_METER = 30;
 
-	private IBouncingBallsModel model;
+	private Balls balls;
 	private double modelHeight;
 	private double deltaT;
 
@@ -25,7 +26,7 @@ public final class BouncingBalls extends Animator {
 		super.init();
 		double modelWidth = canvasWidth / PIXELS_PER_METER;
 		modelHeight = canvasHeight / PIXELS_PER_METER;
-		model = new DummyModel(modelWidth, modelHeight);
+		balls = new Balls(modelWidth, modelHeight);
 	}
 
 	@Override
@@ -33,16 +34,44 @@ public final class BouncingBalls extends Animator {
 		// Clear the canvas
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, canvasWidth, canvasHeight);
+
 		// Update the model
-		model.tick(deltaT);
-		List<Ellipse2D> balls = model.getBalls();
+		List<IBouncingBallsModel> ballList = balls.getBalls();
+		List<Ellipse2D> ballG = new LinkedList<>();
+
+		IBouncingBallsModel b1 = ballList.get(0);
+		IBouncingBallsModel b2 = ballList.get(1);
+
+		if(isColliding(b1, b2)) {
+			setNewVelocity(b1, b2);
+		}
+
+		b1.tick(deltaT);
+		b2.tick(deltaT);
+		ballG.add(b1.getBallG());
+		ballG.add(b2.getBallG());
+
 		// Transform balls to fit canvas
-		g.setColor(Color.RED);
 		g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
 		g.translate(0, -modelHeight);
-		for (Ellipse2D b : balls) {
-			g.fill(b);
-		}
+
+		//Paint ball 1
+		g.setColor(Color.PINK);
+		g.fill(b1.getBallG());
+
+		//Paint ball 2
+		g.setColor(Color.ORANGE);
+		g.fill(b2.getBallG());
+	}
+
+	public boolean isColliding(IBouncingBallsModel b1, IBouncingBallsModel b2) {
+		return ( b1.getX() + b1.getR() == b2.getX() + b2.getR()
+				&& b1.getY() + b1.getR() == b2.getY() + b2.getR() );
+	}
+
+	public void setNewVelocity(IBouncingBallsModel b1, IBouncingBallsModel b2) {
+		b1.setVX(-1);
+		b2.setVY(-1);
 	}
 
 	@Override

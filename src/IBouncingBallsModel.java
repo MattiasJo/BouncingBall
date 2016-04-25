@@ -15,7 +15,7 @@ public interface IBouncingBallsModel {
 	 * 
 	 * @return the balls as shape objects
 	 */
-	public List<Ellipse2D> getBalls();
+	Ellipse2D getBallG();
 
 	/**
 	 * Changes the state of the model using the Euler method by simulating
@@ -24,5 +24,17 @@ public interface IBouncingBallsModel {
 	 * @param deltaT
 	 *            the amount of time to simulate
 	 */
-	public void tick(double deltaT);
+	void tick(double deltaT);
+
+	double getMass();
+
+	double getX();
+
+	double getY();
+
+	double getR();
+
+	void setVY(double newVY);
+
+	void setVX(double newVX);
 }
