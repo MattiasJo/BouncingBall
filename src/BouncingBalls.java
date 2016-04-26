@@ -28,8 +28,8 @@ public final class BouncingBalls extends Animator {
 		double modelWidth = canvasWidth / PIXELS_PER_METER;
 		modelHeight = canvasHeight / PIXELS_PER_METER;
 		//balls = new Balls(modelWidth, modelHeight);
-		b1 = new GenericBall(modelWidth, modelHeight, 8, 5, 0.8, 2);
-		b2 = new GenericBall(modelWidth, modelHeight, 6, 9, 1.2, 4);
+		b1 = new GenericBall(modelWidth, modelHeight, 2, 7, 0.8, 1);
+		b2 = new GenericBall(modelWidth, modelHeight, 6, 9, 1.2, 2);
 	}
 
 	@Override
@@ -67,10 +67,12 @@ public final class BouncingBalls extends Animator {
 	}
 
 	public void setNewVelocity(IBouncingBallsModel b1, IBouncingBallsModel b2) {
-		b1.setVY(b2.getVY());
-		b1.setVX(b1.getVX()*-1);
-		b2.setVY(b1.getVY());
-		b2.setVX(b2.getVX()*-1);
+		double v1 = b1.getVY();
+		double u1 = b2.getVY();
+		b1.setVY(v1 * -1);
+		b1.setVX( (b1.getVX() + b2.getVX()) * -1 );
+		b2.setVY(u1 * -1);
+		b2.setVX( (b1.getVX() + b2.getVX()) * -1 );
 	}
 
 	@Override
