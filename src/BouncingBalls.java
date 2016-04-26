@@ -17,7 +17,8 @@ public final class BouncingBalls extends Animator {
 
 	private static final double PIXELS_PER_METER = 30;
 
-	private Balls balls;
+	//private Balls balls;
+	IBouncingBallsModel b1,b2;
 	private double modelHeight;
 	private double deltaT;
 
@@ -26,7 +27,9 @@ public final class BouncingBalls extends Animator {
 		super.init();
 		double modelWidth = canvasWidth / PIXELS_PER_METER;
 		modelHeight = canvasHeight / PIXELS_PER_METER;
-		balls = new Balls(modelWidth, modelHeight);
+		//balls = new Balls(modelWidth, modelHeight);
+		b1 = new GenericBall(modelWidth, modelHeight, 8, 5, 0.8, 2);
+		b2 = new GenericBall(modelWidth, modelHeight, 6, 9, 1.2, 4);
 	}
 
 	@Override
@@ -35,21 +38,14 @@ public final class BouncingBalls extends Animator {
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, canvasWidth, canvasHeight);
 
-		// Update the model
-		List<IBouncingBallsModel> ballList = balls.getBalls();
-		List<Ellipse2D> ballG = new LinkedList<>();
-
-		IBouncingBallsModel b1 = ballList.get(0);
-		IBouncingBallsModel b2 = ballList.get(1);
-
+		// Check if the balls is colliding, and eventually set a new velocity vector.
 		if(isColliding(b1, b2)) {
 			setNewVelocity(b1, b2);
 		}
 
+		// Update the coordinates for the balls
 		b1.tick(deltaT);
 		b2.tick(deltaT);
-		ballG.add(b1.getBallG());
-		ballG.add(b2.getBallG());
 
 		// Transform balls to fit canvas
 		g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
