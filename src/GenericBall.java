@@ -69,6 +69,15 @@ public class GenericBall implements IBouncingBallsModel {
         vx = newVX;
     }
 
+    public double getVY() {
+        return vy;
+    }
+
+    public double getVX() {
+        return vx;
+    }
+
+
     @Override
     public Ellipse2D getBallG() {
         return new Ellipse2D.Double(x - r, y - r, 2 * r, 2 * r);

@@ -61,13 +61,16 @@ public final class BouncingBalls extends Animator {
 	}
 
 	public boolean isColliding(IBouncingBallsModel b1, IBouncingBallsModel b2) {
-		return ( b1.getX() + b1.getR() == b2.getX() + b2.getR()
-				&& b1.getY() + b1.getR() == b2.getY() + b2.getR() );
+		double delta = (b1.getR() + b2.getR());
+		return ( Math.abs(b1.getX() - b2.getX()) <= delta
+				&& Math.abs(b1.getY() - b2.getY()) <= delta );
 	}
 
 	public void setNewVelocity(IBouncingBallsModel b1, IBouncingBallsModel b2) {
-		b1.setVX(-1);
-		b2.setVY(-1);
+		b1.setVY(b2.getVY());
+		b1.setVX(b1.getVX()*-1);
+		b2.setVY(b1.getVY());
+		b2.setVX(b2.getVX()*-1);
 	}
 
 	@Override

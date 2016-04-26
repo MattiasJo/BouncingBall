@@ -37,4 +37,8 @@ public interface IBouncingBallsModel {
 	void setVY(double newVY);
 
 	void setVX(double newVX);
+
+	double getVY();
+
+	double getVX();
 }
