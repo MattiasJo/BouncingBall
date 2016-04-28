@@ -5,49 +5,62 @@ public class GenericBall implements IBouncingBallsModel {
     private final double areaWidth;
     private final double areaHeight;
     private final double gravity = 9.82/8;
+    public String test;
 
     private double x, y, vx, vy, r, mass;
 
-    public GenericBall(double width, double height, double x, double y, double r, double mass) {
+    public GenericBall(double width, double height, double x, double y, double r, String test) {
         this.areaWidth = width;
         this.areaHeight = height;
         this.x = x;
         this.y = y;
-        vx = 4;
-        vy = -gravity;
+        vx = 10;
+        vy = 1  ;
+        this.test = test;
         this.r = r;
-        this.mass = mass;
     }
 
     @Override
     public void tick(double deltaT) {
-        if( y < (r - Math.abs(vy*deltaT)) ) {
-            if (x < r || x > areaWidth - r) {
-                vx *= -1;
-            }
-            if(vx > 0.1) {vx -= 0.05;} else if(vx <= 0.1) {vx += 0.05;}
-            if (vx >= 0.4 || vx <= -0.4) {
-                x += vx * deltaT;
-            }
-        } else{
-            if (x < r || x > areaWidth - r) {
-                vx *= -1;
-            }
 
-            if (y < r || y > areaHeight - r) {
-                vy *= -1;
-            }
+        vy -= gravity;
 
-            vy -= gravity;
+        //-----X-----
+        // If the next x coordinate is off screen,
+        // moves the ball to the edge.
+        double nextXStep = x+vx*deltaT;
+        if(nextXStep<r) {
+            x = r;
+            vx *= -1;
+        } else if((nextXStep>areaWidth-r)) {
+            x = areaWidth-r;
+            vx *= -1;
+        } else {
+            this.takeXStep(nextXStep);
+        }
 
-            x += vx * deltaT;
-            y += vy * deltaT;
+        //-----Y-----
+        // If the next y coordinate is off screen,
+        // moves the ball to the edge.
+        double nextYStep = y+vy*deltaT;
+        if(nextYStep<r) {
+            y = r;
+            vy *= -1;
+        } else if((nextYStep>areaHeight-r)) {
+            y = areaHeight-r;
+            vy *= -1;
+        } else {
+            this.takeYStep(nextYStep);
         }
     }
 
-    public double getMass() {
-        return mass;
+    public void takeXStep(double step) {
+        x = step;
     }
+    public void takeYStep(double step) {
+        y = step;
+    }
+    public double getMass() {return r*2;}
 
     public double getX() {
         return x;
@@ -61,9 +74,7 @@ public class GenericBall implements IBouncingBallsModel {
         return r;
     }
 
-    public void setVY(double newVY) {
-        vy = newVY;
-    }
+    public void setVY(double newVY) {vy = newVY;}
 
     public void setVX(double newVX) {
         vx = newVX;

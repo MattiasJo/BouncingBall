@@ -26,7 +26,9 @@ public interface IBouncingBallsModel {
 	 */
 	void tick(double deltaT);
 
-	double getMass();
+	void takeXStep(double step);
+
+	void takeYStep(double step);
 
 	double getX();
 
