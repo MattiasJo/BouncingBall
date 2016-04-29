@@ -22,45 +22,28 @@ public class GenericBall implements IBouncingBallsModel {
 
     @Override
     public void tick(double deltaT) {
+        vy -= gravity;
+    }
 
-       // vy -= gravity;
+    public void setX(double x) {
+        this.x = x;
+    }
 
-        //-----X-----
-        // If the next x coordinate is off screen,
-        // moves the ball to the edge.
-        double nextXStep = x+vx*deltaT;
-        if(nextXStep<r) {
-            x = r;
-            vx *= -1;
-        } else if((nextXStep>areaWidth-r)) {
-            x = areaWidth-r;
-            vx *= -1;
-        } else {
-            this.takeXStep(nextXStep);
-        }
-
-        //-----Y-----
-        // If the next y coordinate is off screen,
-        // moves the ball to the edge.
-        double nextYStep = y+vy*deltaT;
-        if(nextYStep<r) {
-            y = r;
-            vy *= -1;
-        } else if((nextYStep>areaHeight-r)) {
-            y = areaHeight-r;
-            vy *= -1;
-        } else {
-            this.takeYStep(nextYStep);
-        }
+    public void setY(double y) {
+        this.y = y;
     }
 
     public void takeXStep(double step) {
         x = step;
     }
+
     public void takeYStep(double step) {
         y = step;
     }
-    public double getMass() {return r*2;}
+
+    public double getMass() {
+        return r*2;
+    }
 
     public double getX() {
         return x;

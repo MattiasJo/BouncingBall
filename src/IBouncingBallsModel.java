@@ -30,6 +30,10 @@ public interface IBouncingBallsModel {
 
 	void takeYStep(double step);
 
+	void setX(double x);
+
+	void setY(double y);
+
 	double getX();
 
 	double getY();

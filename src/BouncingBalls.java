@@ -17,31 +17,36 @@ public final class BouncingBalls extends Animator {
 
 	private static final double PIXELS_PER_METER = 30;
 
-	//private Balls balls;
+	private List<IBouncingBallsModel> ballList;
 	IBouncingBallsModel b1,b2;
-	private double modelHeight;
+	private double modelWidth, modelHeight;
 	private double deltaT;
 
 	@Override
 	public void init() {
 		super.init();
-		double modelWidth = canvasWidth / PIXELS_PER_METER;
+		modelWidth = canvasWidth / PIXELS_PER_METER;
 		modelHeight = canvasHeight / PIXELS_PER_METER;
 		//balls = new Balls(modelWidth, modelHeight);
+		ballList = new LinkedList<>();
 		b1 = new GenericBall(modelWidth, modelHeight, 10, 8, 0.7,"One");
 		b2 = new GenericBall(modelWidth, modelHeight, 5, 8, 1.4,"Two");
+		ballList.add(b1); ballList.add(b2);
 	}
 
 	@Override
 	protected void drawFrame(Graphics2D g) {
+
 		// Clear the canvas
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, canvasWidth, canvasHeight);
 
 		// Check if the balls is colliding, and eventually set a new velocity vector.
 		if(isColliding(b1, b2)) {
-			setNewVelocity(b1, b2);
+			setNewVelocity();
 		}
+
+		wallCheck();
 
 		// Update the coordinates for the balls
 		b1.tick(deltaT);
@@ -62,65 +67,65 @@ public final class BouncingBalls extends Animator {
 	//Return true if a after next step balls will overlap.
 	public boolean isColliding(IBouncingBallsModel b1, IBouncingBallsModel b2) {
 		double rs = b1.getR() + b2.getR();
-		double deltaX = Math.abs(b1.getX() + b1.getVX()*deltaT) - Math.abs(b2.getX() + b2.getVX()*deltaT);
-		double deltaY = Math.abs(b1.getY() + b1.getVY()*deltaT) - Math.abs(b2.getY() + b2.getVY()*deltaT);
+		double deltaX = Math.abs(b1.getX() + b1.getVX() * deltaT) - Math.abs(b2.getX() + b2.getVX() * deltaT);
+		double deltaY = Math.abs(b1.getY() + b1.getVY() * deltaT) - Math.abs(b2.getY() + b2.getVY() * deltaT);
 
 		return (Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)) < rs);
 	}
 
-	public void setNewVelocity(IBouncingBallsModel b1, IBouncingBallsModel b2) {
+	public void setNewVelocity() {
 
-		double ang1 = Math.tanh(b1.getVY()/b1.getVX());
-		double r1 = Math.sqrt(Math.pow(b1.getVY(),2) + Math.pow(b1.getVX(),2));
+		for(IBouncingBallsModel ball : ballList) {
+			double ang = Math.tanh(ball.getVY()/ball.getVX());
+			double r = Math.sqrt(Math.pow(ball.getVY(),2) + Math.pow(ball.getVX(),2));
 
-		if(b1.getVX() < 0) {
-			b1.setVX(r1 * Math.cos(ang1));
-		} else {
-			b1.setVX(r1 * Math.cos(ang1)*-1);
+			if(ball.getVX() < 0) {
+				ball.setVX(r * Math.cos(ang));
+			} else {
+				ball.setVX(r * Math.cos(ang)*-1);
+			}
+
+			if(ball.getVX() < 0) {
+				ball.setVY(r * Math.sin(ang));
+			} else {
+				ball.setVY(r * Math.sin(ang) *- 1);
+			}
 		}
 
-		if(b1.getVX() < 0) {
-			b1.setVY(r1 * Math.sin(ang1));
-		} else {
-			b1.setVY(r1 * Math.sin(ang1)*-1);
+	}
+
+	public void wallCheck() {
+
+		for(IBouncingBallsModel ball : ballList) {
+			double r = ball.getR();
+			double vy = ball.getVY();
+
+			// If the next x coordinate is off screen,
+			// moves the ball to the edge.
+			double nextXStep = ball.getX()+ball.getVX()*deltaT;
+			if(nextXStep < r) {
+				ball.setX(r);
+				ball.setVX(ball.getVX() *- 1);
+			} else if( nextXStep > (modelWidth - r) ) {
+				ball.setX(modelWidth - r);
+				ball.setVX(ball.getVX() *- 1);
+			} else {
+				ball.takeXStep(nextXStep);
+			}
+
+			// If the next y coordinate is off screen,
+			// moves the ball to the edge.
+			double nextYStep = ball.getY() + ball.getVY() * deltaT;
+			if(nextYStep < r) {
+				ball.setY(r);
+				ball.setVY(vy * -1);
+			} else if( nextYStep > (modelHeight - r) ) {
+				ball.setY(modelHeight - r);
+				ball.setVY(vy *- 1);
+			} else {
+				ball.takeYStep(nextYStep);
+			}
 		}
-
-		double ang2 = Math.tanh(b2.getVY()/b2.getVX());
-		double r2 = Math.sqrt(Math.pow(b2.getVY(),2) + Math.pow(b2.getVX(),2));
-
-		if(b2.getVX() < 0) {
-			b2.setVX(r2 * Math.cos(ang2));
-		} else {
-			b2.setVX(r2 * Math.cos(ang2)*-1);
-		}
-
-		if(b2.getVX() < 0) {
-			b2.setVY(r2 * Math.sin(ang2));
-		} else {
-			b2.setVY(r2 * Math.sin(ang2)*-1);
-		}
-
-		/*double b1vy = b1.getVY();
-		double b1vx = b1.getVX();
-		b1.setVY(b2.getVY() * 5/3);
-		b1.setVX(b2.getVX() * 5/3);
-		b2.setVX(b1vx * 1/3);
-		b2.setVY(b1vy * 1/3);
-		System.out.println("hit");
-
-
-		double b1Theta = Math.toDegrees(Math.atan(b1.getVY()/b1.getVX()));
-		double b2Theta = Math.toDegrees(Math.atan(b2.getVY()/b2.getVX()));
-
-		double r = (b1.getR() + b2.getR());
-		double deltaX =  Math.abs(b1.getX() - b2.getX());
-		double deltaY = Math.abs(b1.getY() - b2.getY());
-		double collitionTheta =  Math.toDegrees(Math.atan(deltaY/deltaX));
-
-		double b1Ken = (b1.getMass()/2) * Math.pow(Math.hypot(b1.getVX(),b1.getVY()),2);
-		double b2Ken = (b2.getMass()/2) * Math.pow(Math.hypot(b2.getVX(),b2.getVY()),2);
-		*/
-
 	}
 
 	@Override
