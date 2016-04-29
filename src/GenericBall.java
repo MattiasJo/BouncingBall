@@ -23,7 +23,7 @@ public class GenericBall implements IBouncingBallsModel {
     @Override
     public void tick(double deltaT) {
 
-        vy -= gravity;
+       // vy -= gravity;
 
         //-----X-----
         // If the next x coordinate is off screen,

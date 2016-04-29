@@ -41,7 +41,7 @@ public final class BouncingBalls extends Animator {
 		// Check if the balls is colliding, and eventually set a new velocity vector.
 		if(isColliding(b1, b2)) {
 			setNewVelocity(b1, b2);
-		} else 
+		}
 
 		// Update the coordinates for the balls
 		b1.tick(deltaT);
@@ -62,13 +62,45 @@ public final class BouncingBalls extends Animator {
 	//Return true if a after next step balls will overlap.
 	public boolean isColliding(IBouncingBallsModel b1, IBouncingBallsModel b2) {
 		double rs = b1.getR() + b2.getR();
-		double deltaX = Math.abs(b1.getX() + b1.getVX()*deltaT) - Math.abs(b2.getX() + b2.getVX()*deltaT) ;
-		double deltaY = Math.abs(b1.getY() + b1.getVY()*deltaT) - Math.abs(b2.getY() + b2.getVY()*deltaT) ;
+		double deltaX = Math.abs(b1.getX() + b1.getVX()*deltaT) - Math.abs(b2.getX() + b2.getVX()*deltaT);
+		double deltaY = Math.abs(b1.getY() + b1.getVY()*deltaT) - Math.abs(b2.getY() + b2.getVY()*deltaT);
+
 		return (Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)) < rs);
 	}
 
 	public void setNewVelocity(IBouncingBallsModel b1, IBouncingBallsModel b2) {
-		double b1vy = b1.getVY();
+
+		double ang1 = Math.tanh(b1.getVY()/b1.getVX());
+		double r1 = Math.sqrt(Math.pow(b1.getVY(),2) + Math.pow(b1.getVX(),2));
+
+		if(b1.getVX() < 0) {
+			b1.setVX(r1 * Math.cos(ang1));
+		} else {
+			b1.setVX(r1 * Math.cos(ang1)*-1);
+		}
+
+		if(b1.getVX() < 0) {
+			b1.setVY(r1 * Math.sin(ang1));
+		} else {
+			b1.setVY(r1 * Math.sin(ang1)*-1);
+		}
+
+		double ang2 = Math.tanh(b2.getVY()/b2.getVX());
+		double r2 = Math.sqrt(Math.pow(b2.getVY(),2) + Math.pow(b2.getVX(),2));
+
+		if(b2.getVX() < 0) {
+			b2.setVX(r2 * Math.cos(ang2));
+		} else {
+			b2.setVX(r2 * Math.cos(ang2)*-1);
+		}
+
+		if(b2.getVX() < 0) {
+			b2.setVY(r2 * Math.sin(ang2));
+		} else {
+			b2.setVY(r2 * Math.sin(ang2)*-1);
+		}
+
+		/*double b1vy = b1.getVY();
 		double b1vx = b1.getVX();
 		b1.setVY(b2.getVY() * 5/3);
 		b1.setVX(b2.getVX() * 5/3);
@@ -76,7 +108,7 @@ public final class BouncingBalls extends Animator {
 		b2.setVY(b1vy * 1/3);
 		System.out.println("hit");
 
-		/*
+
 		double b1Theta = Math.toDegrees(Math.atan(b1.getVY()/b1.getVX()));
 		double b2Theta = Math.toDegrees(Math.atan(b2.getVY()/b2.getVX()));
 
