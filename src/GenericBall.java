@@ -5,18 +5,16 @@ public class GenericBall implements IBouncingBallsModel {
     private final double areaWidth;
     private final double areaHeight;
     private final double gravity = 9.82/8;
-    public String test;
 
     private double x, y, vx, vy, r, mass;
 
-    public GenericBall(double width, double height, double x, double y, double r, String test) {
+    public GenericBall(double width, double height, double x, double y, double r) {
         this.areaWidth = width;
         this.areaHeight = height;
         this.x = x;
         this.y = y;
-        vx = 10;
-        vy = 1  ;
-        this.test = test;
+        vx = 2;
+        vy = 3;
         this.r = r;
     }
 
