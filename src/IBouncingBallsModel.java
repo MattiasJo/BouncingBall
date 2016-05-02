@@ -24,6 +24,8 @@ public interface IBouncingBallsModel {
 	 * @param deltaT
 	 *            the amount of time to simulate
 	 */
+	double getMass();
+
 	void tick(double deltaT);
 
 	void takeXStep(double step);

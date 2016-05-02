@@ -85,13 +85,47 @@ public final class BouncingBalls extends Animator {
 		} else {
 			return (centerDistances <= rs);
 		}
-	}
+	}	
 
 	public void setNewVelocity() {
-		for(IBouncingBallsModel ball : ballList) {
-			ball.setVX(ball.getVX() * -1);
-			ball.setVY(ball.getVY() * -1);
+
+		double deltaX = Math.abs(b1.getX()-b2.getX());
+		double deltaY = Math.abs(b1.getY()-b2.getY());
+
+		double phi = Math.atan(deltaY/deltaX);
+
+		double v1 = Math.hypot(b1.getVX(),b1.getVY());
+		double v2 = Math.hypot(b2.getVX(),b2.getVY());
+
+		if(b1.getVX() < 0) {
+			v1 = v1*-1;
 		}
+		if(b2.getVX() < 0) {
+			v2 = v2*-1;
+		}
+
+		System.out.println(v1);
+		System.out.println(v2);
+
+		double theta1 = Math.atan(b1.getVY()/b1.getVX());
+		double theta2 = Math.atan(b2.getVY()/b2.getVX());
+
+		double v1x = v1*Math.cos(theta1-phi);
+		double v1y = v1*Math.sin(theta1-phi);
+
+		double v2x = v2*Math.cos(theta2-phi);
+		double v2y = v2*Math.sin(theta2-phi);
+
+		double u1x = ((b1.getMass()-b2.getMass())*v1x + (b2.getMass()+b2.getMass())*v2x)
+				/ (b1.getMass()+b2.getMass());
+
+		double u2x = ((b1.getMass()+b1.getMass())*v1x + (b2.getMass()-b1.getMass())*v2x)
+				/ (b1.getMass()+b2.getMass());
+
+		b1.setVX(u1x*Math.cos(phi)+v1y*Math.cos((Math.PI/2)+phi));
+		b1.setVY(u1x*Math.sin(phi)+v1y*Math.sin((Math.PI/2)+phi));
+		b2.setVX(u2x*Math.cos(phi)+v2y*Math.cos((Math.PI/2)+phi));
+		b2.setVY(u2x*Math.sin(phi)+v2y*Math.sin((Math.PI/2)+phi));
 	}
 
 	public void wallCheck() {

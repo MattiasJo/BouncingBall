@@ -4,9 +4,9 @@ public class GenericBall implements IBouncingBallsModel {
 
     private final double areaWidth;
     private final double areaHeight;
-    private final double gravity = 9.82/8;
+    private final double gravity = 9.82/20;
 
-    private double x, y, vx, vy, r, mass;
+    private double x, y, vx, vy, r;
 
     public GenericBall(double width, double height, double x, double y, double r) {
         this.areaWidth = width;
