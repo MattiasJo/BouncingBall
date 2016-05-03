@@ -85,43 +85,55 @@ public final class BouncingBalls extends Animator {
 		} else {
 			return (centerDistances <= rs);
 		}
-	}	
+	}
 
 	public void setNewVelocity() {
-
+		//Distances in X and Y from ball center, to ball center.
 		double deltaX = Math.abs(b1.getX()-b2.getX());
 		double deltaY = Math.abs(b1.getY()-b2.getY());
-
+		//Angle of line running through ball centers.
 		double phi = Math.atan(deltaY/deltaX);
 
+		//Velocity vector for balls.
 		double v1 = Math.hypot(b1.getVX(),b1.getVY());
 		double v2 = Math.hypot(b2.getVX(),b2.getVY());
 
-		if(b1.getVX() < 0) {
-			v1 = v1*-1;
+		//Vector angle, unique for each quadrant of the coordinate system.
+		double theta1;
+		if(b1.getVX() < 0 && b1.getVY() < 0) {
+			theta1 = 3*Math.PI/2 - Math.atan(b1.getVY()/b1.getVX());
+		} else if(b1.getVX() > 0 &&b1.getVY() < 0) {
+			theta1 = 2*Math.PI- Math.atan(b1.getVY()/b1.getVX());
+		} else if(b1.getVX() < 0 &&b1.getVY() > 0) {
+			theta1 = Math.PI-Math.atan(b1.getVY()/b1.getVX());
+		} else {
+			theta1 = Math.atan(b1.getVY()/b1.getVX());
 		}
-		if(b2.getVX() < 0) {
-			v2 = v2*-1;
+
+		double theta2;
+		if(b2.getVX() < 0 && b2.getVY() < 0) {
+			theta2 = 3*Math.PI/2 - Math.atan(b2.getVY()/b2.getVX());
+		} else if(b2.getVX() > 0 && b2.getVY() < 0) {
+			theta2 = 2*Math.PI- Math.atan(b2.getVY()/b2.getVX());
+		} else if(b2.getVX() < 0 && b2.getVY() > 0) {
+			theta2 = Math.PI-Math.atan(b2.getVY()/b2.getVX());
+		} else {
+			theta2 = Math.atan(b2.getVY()/b2.getVX());
 		}
 
-		System.out.println(v1);
-		System.out.println(v2);
-
-		double theta1 = Math.atan(b1.getVY()/b1.getVX());
-		double theta2 = Math.atan(b2.getVY()/b2.getVX());
-
+		//Velocities of X and Y in Polar coordinate system.
 		double v1x = v1*Math.cos(theta1-phi);
 		double v1y = v1*Math.sin(theta1-phi);
-
 		double v2x = v2*Math.cos(theta2-phi);
 		double v2y = v2*Math.sin(theta2-phi);
 
+		//Velocities after collision in Polar coordinate system.
 		double u1x = ((b1.getMass()-b2.getMass())*v1x + (b2.getMass()+b2.getMass())*v2x)
 				/ (b1.getMass()+b2.getMass());
-
 		double u2x = ((b1.getMass()+b1.getMass())*v1x + (b2.getMass()-b1.getMass())*v2x)
 				/ (b1.getMass()+b2.getMass());
 
+		//Sets new X and Y velocities for the rectangular coordinate system.
 		b1.setVX(u1x*Math.cos(phi)+v1y*Math.cos((Math.PI/2)+phi));
 		b1.setVY(u1x*Math.sin(phi)+v1y*Math.sin((Math.PI/2)+phi));
 		b2.setVX(u2x*Math.cos(phi)+v2y*Math.cos((Math.PI/2)+phi));
