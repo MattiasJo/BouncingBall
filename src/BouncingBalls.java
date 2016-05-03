@@ -91,6 +91,7 @@ public final class BouncingBalls extends Animator {
 		//Distances in X and Y from ball center, to ball center.
 		double deltaX = Math.abs(b1.getX()-b2.getX());
 		double deltaY = Math.abs(b1.getY()-b2.getY());
+
 		//Angle of line running through ball centers.
 		double phi = Math.atan(deltaY/deltaX);
 
@@ -99,27 +100,8 @@ public final class BouncingBalls extends Animator {
 		double v2 = Math.hypot(b2.getVX(),b2.getVY());
 
 		//Vector angle, unique for each quadrant of the coordinate system.
-		double theta1;
-		if(b1.getVX() < 0 && b1.getVY() < 0) {
-			theta1 = 3*Math.PI/2 - Math.atan(b1.getVY()/b1.getVX());
-		} else if(b1.getVX() > 0 &&b1.getVY() < 0) {
-			theta1 = 2*Math.PI- Math.atan(b1.getVY()/b1.getVX());
-		} else if(b1.getVX() < 0 &&b1.getVY() > 0) {
-			theta1 = Math.PI-Math.atan(b1.getVY()/b1.getVX());
-		} else {
-			theta1 = Math.atan(b1.getVY()/b1.getVX());
-		}
-
-		double theta2;
-		if(b2.getVX() < 0 && b2.getVY() < 0) {
-			theta2 = 3*Math.PI/2 - Math.atan(b2.getVY()/b2.getVX());
-		} else if(b2.getVX() > 0 && b2.getVY() < 0) {
-			theta2 = 2*Math.PI- Math.atan(b2.getVY()/b2.getVX());
-		} else if(b2.getVX() < 0 && b2.getVY() > 0) {
-			theta2 = Math.PI-Math.atan(b2.getVY()/b2.getVX());
-		} else {
-			theta2 = Math.atan(b2.getVY()/b2.getVX());
-		}
+		double theta1 = determineAngle(b1);
+		double theta2 = determineAngle(b2);
 
 		//Velocities of X and Y in Polar coordinate system.
 		double v1x = v1*Math.cos(theta1-phi);
@@ -138,6 +120,18 @@ public final class BouncingBalls extends Animator {
 		b1.setVY(u1x*Math.sin(phi)+v1y*Math.sin((Math.PI/2)+phi));
 		b2.setVX(u2x*Math.cos(phi)+v2y*Math.cos((Math.PI/2)+phi));
 		b2.setVY(u2x*Math.sin(phi)+v2y*Math.sin((Math.PI/2)+phi));
+	}
+
+	public double determineAngle(IBouncingBallsModel ball) {
+		if(ball.getVX() < 0 && ball.getVY() < 0) {
+			return ( 3 * Math.PI/2 - Math.atan(ball.getVY()/ball.getVX()) );
+		} else if(ball.getVX() > 0 && ball.getVY() < 0) {
+			return ( 2 * Math.PI - Math.atan(ball.getVY()/ball.getVX()) );
+		} else if(ball.getVX() < 0 && ball.getVY() > 0) {
+			return ( Math.PI - Math.atan(ball.getVY()/ball.getVX()) );
+		} else {
+			return ( Math.atan(ball.getVY()/ball.getVX()) );
+		}
 	}
 
 	public void wallCheck() {
