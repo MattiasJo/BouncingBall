@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,8 +16,7 @@ public final class BouncingBalls extends Animator {
 
 	private static final double PIXELS_PER_METER = 30;
 
-	private List<IBouncingBallsModel> ballList;
-	IBouncingBallsModel b1,b2;
+	private List<IBouncingBallsModel> ballList = new LinkedList<>();
 	private double modelWidth, modelHeight;
 	private double deltaT;
 
@@ -27,11 +25,12 @@ public final class BouncingBalls extends Animator {
 		super.init();
 		modelWidth = canvasWidth / PIXELS_PER_METER;
 		modelHeight = canvasHeight / PIXELS_PER_METER;
-		//balls = new Balls(modelWidth, modelHeight);
-		ballList = new LinkedList<>();
-		b1 = new GenericBall(modelWidth, modelHeight, 10, 8, 0.7);
-		b2 = new GenericBall(modelWidth, modelHeight, 5, 8, 1.4);
-		ballList.add(b1); ballList.add(b2);
+
+		ballList.add(new GenericBall(modelWidth, modelHeight, 10, 8, 0.7));
+		ballList.add(new GenericBall(modelWidth, modelHeight, 5, 8, 1.4));
+		ballList.add(new GenericBall(modelWidth, modelHeight, 2, 3, 0.5));
+		ballList.add(new GenericBall(modelWidth, modelHeight, 9, 1, 0.8));
+		ballList.add(new GenericBall(modelWidth, modelHeight, 3, 9, 0.9));
 	}
 
 	@Override
@@ -51,10 +50,11 @@ public final class BouncingBalls extends Animator {
 		}
 
 		// Sets a new velocity vector.
-		if(isColliding(ballList.get(0),b2)) {
-			setNewVelocity();
+		for(int i = 0; i < ballList.size()-1; i++) {
+			if(isColliding(ballList.get(i),ballList.get(i+1))) {
+				setNewVelocity(ballList.get(i), ballList.get(i+1));
+			}
 		}
-
 		// Update the coordinates for the balls
 		for(IBouncingBallsModel ball : ballList) {
 			ball.tick(deltaT);
@@ -88,7 +88,7 @@ public final class BouncingBalls extends Animator {
 		}
 	}
 
-	public void setNewVelocity() {
+	public void setNewVelocity(IBouncingBallsModel b1, IBouncingBallsModel b2) {
 		//Distances in X and Y from ball center, to ball center.
 		double deltaX = Math.abs(b1.getX()-b2.getX());
 		double deltaY = Math.abs(b1.getY()-b2.getY());
@@ -136,7 +136,7 @@ public final class BouncingBalls extends Animator {
 		double vy = ball.getVY();
 
 		// If the next x coordinate is off screen, moves the ball to the edge. If not take the next step.
-		double nextXStep = ball.getX()+vx*deltaT;
+		double nextXStep = ball.getX() + vx*deltaT;
 		if(nextXStep < r) {
 			ball.setX(r);
 			ball.setVX(vx *- 1);
@@ -148,7 +148,7 @@ public final class BouncingBalls extends Animator {
 		}
 
 		// If the next y coordinate is off screen, moves the ball to the edge. If not take the next step.
-		double nextYStep = ball.getY()+ vy * deltaT;
+		double nextYStep = ball.getY() + vy * deltaT;
 		if(nextYStep < r) {
 			ball.setY(r);
 			ball.setVY(vy * -1);
