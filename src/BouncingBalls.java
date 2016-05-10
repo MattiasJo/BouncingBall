@@ -41,29 +41,30 @@ public final class BouncingBalls extends Animator {
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, canvasWidth, canvasHeight);
 
-		// Checks for wall collision and moves ball.
-		wallCheck();
-
-		// Sets a new velocity vector.
-		if(isColliding(b1,b2)) {
-			setNewVelocity();
-		}
-
-		// Update the coordinates for the balls
-		b1.tick(deltaT);
-		b2.tick(deltaT);
-
 		// Transform balls to fit canvas
 		g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
 		g.translate(0, -modelHeight);
 
-		//Paint ball 1
-		g.setColor(Color.PINK);
-		g.fill(b1.getBallG());
+		// Checks for wall collision and moves ball.
+		for(IBouncingBallsModel ball : ballList) {
+			wallCheck(ball);
+		}
 
-		//Paint ball 2
-		g.setColor(Color.ORANGE);
-		g.fill(b2.getBallG());
+		// Sets a new velocity vector.
+		if(isColliding(ballList.get(0),b2)) {
+			setNewVelocity();
+		}
+
+		// Update the coordinates for the balls
+		for(IBouncingBallsModel ball : ballList) {
+			ball.tick(deltaT);
+		}
+
+		//Paint balls
+		g.setColor(Color.RED);
+		for(IBouncingBallsModel ball : ballList) {
+			g.fill(ball.getBallG());
+		}
 	}
 	//Return true if balls are overlapping.
 	private boolean stillColliding = false;
@@ -95,31 +96,26 @@ public final class BouncingBalls extends Animator {
 		//Angle of line running through ball centers.
 		double phi = Math.atan(deltaY/deltaX);
 
-		//Velocity vector for balls.
-		double v1 = Math.hypot(b1.getVX(),b1.getVY());
-		double v2 = Math.hypot(b2.getVX(),b2.getVY());
-
-		//Vector angle, unique for each quadrant of the coordinate system.
-		double theta1 = determineAngle(b1);
-		double theta2 = determineAngle(b2);
-
-		//Velocities of X and Y in Polar coordinate system.
-		double v1x = v1*Math.cos(theta1-phi);
-		double v1y = v1*Math.sin(theta1-phi);
-		double v2x = v2*Math.cos(theta2-phi);
-		double v2y = v2*Math.sin(theta2-phi);
+		double[] vx = new double[ballList.size()];
+		double[] vy = new double[ballList.size()];
+		for(IBouncingBallsModel ball : ballList) {
+			double v = Math.hypot(ball.getVX(),ball.getVY());
+			double theta = determineAngle(ball);
+			vx[ballList.indexOf(ball)] = v*Math.cos(theta-phi);
+			vy[ballList.indexOf(ball)] = v*Math.sin(theta-phi);
+		}
 
 		//Velocities after collision in Polar coordinate system.
-		double u1x = ((b1.getMass()-b2.getMass())*v1x + (b2.getMass()+b2.getMass())*v2x)
+		double u1x = ((b1.getMass()-b2.getMass())*vx[0] + (b2.getMass()+b2.getMass())*vx[1])
 				/ (b1.getMass()+b2.getMass());
-		double u2x = ((b1.getMass()+b1.getMass())*v1x + (b2.getMass()-b1.getMass())*v2x)
+		double u2x = ((b1.getMass()+b1.getMass())*vx[0] + (b2.getMass()-b1.getMass())*vx[1])
 				/ (b1.getMass()+b2.getMass());
 
 		//Sets new X and Y velocities for the rectangular coordinate system.
-		b1.setVX(u1x*Math.cos(phi)+v1y*Math.cos((Math.PI/2)+phi));
-		b1.setVY(u1x*Math.sin(phi)+v1y*Math.sin((Math.PI/2)+phi));
-		b2.setVX(u2x*Math.cos(phi)+v2y*Math.cos((Math.PI/2)+phi));
-		b2.setVY(u2x*Math.sin(phi)+v2y*Math.sin((Math.PI/2)+phi));
+		b1.setVX( u1x*Math.cos(phi) + vy[0]*Math.cos((Math.PI/2)+phi) );
+		b1.setVY( u1x*Math.sin(phi) + vy[0]*Math.sin((Math.PI/2)+phi) );
+		b2.setVX( u2x*Math.cos(phi) + vy[1]*Math.cos((Math.PI/2)+phi) );
+		b2.setVY( u2x*Math.sin(phi) + vy[1]*Math.sin((Math.PI/2)+phi) );
 	}
 
 	public double determineAngle(IBouncingBallsModel ball) {
@@ -134,40 +130,33 @@ public final class BouncingBalls extends Animator {
 		}
 	}
 
-	public void wallCheck() {
+	public void wallCheck(IBouncingBallsModel ball) {
+		double r = ball.getR();
+		double vx = ball.getVX();
+		double vy = ball.getVY();
 
-		for(IBouncingBallsModel ball : ballList) {
-			double r = ball.getR();
-			double vy = ball.getVY();
-			double vx = ball.getVX();
+		// If the next x coordinate is off screen, moves the ball to the edge. If not take the next step.
+		double nextXStep = ball.getX()+vx*deltaT;
+		if(nextXStep < r) {
+			ball.setX(r);
+			ball.setVX(vx *- 1);
+		} else if( nextXStep > (modelWidth - r) ) {
+			ball.setX(modelWidth - r);
+			ball.setVX(vx * -1);
+		} else {
+			ball.takeXStep(nextXStep);
+		}
 
-			// If the next x coordinate is off screen,
-			// moves the ball to the edge. If not take
-			// the next step.
-			double nextXStep = ball.getX()+vx*deltaT;
-			if(nextXStep < r) {
-				ball.setX(r);
-				ball.setVX(vx *- 1);
-			} else if( nextXStep > (modelWidth - r) ) {
-				ball.setX(modelWidth - r);
-				ball.setVX(vx * -1);
-			} else {
-				ball.takeXStep(nextXStep);
-			}
-
-			// If the next y coordinate is off screen,
-			// moves the ball to the edge. If not take
-			// the next step.
-			double nextYStep = ball.getY()+ vy * deltaT;
-			if(nextYStep < r) {
-				ball.setY(r);
-				ball.setVY(vy * -1);
-			} else if( nextYStep > (modelHeight - r) ) {
-				ball.setY(modelHeight - r);
-				ball.setVY(vy *- 1);
-			} else {
-				ball.takeYStep(nextYStep);
-			}
+		// If the next y coordinate is off screen, moves the ball to the edge. If not take the next step.
+		double nextYStep = ball.getY()+ vy * deltaT;
+		if(nextYStep < r) {
+			ball.setY(r);
+			ball.setVY(vy * -1);
+		} else if( nextYStep > (modelHeight - r) ) {
+			ball.setY(modelHeight - r);
+			ball.setVY(vy *- 1);
+		} else {
+			ball.takeYStep(nextYStep);
 		}
 	}
 
