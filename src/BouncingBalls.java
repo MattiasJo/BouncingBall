@@ -38,6 +38,7 @@ public final class BouncingBalls extends Animator {
 		g.translate(0, -modelHeight);
 
 		for(IBall ball : ballList) {
+
 			for(IBall otherBall: ballList) {
 				if(ball != otherBall) {
 					oBall = otherBall;
@@ -47,6 +48,7 @@ public final class BouncingBalls extends Animator {
 			// Apply gravity.
 			ball.setVy(ball.getVy()- gravity);
 
+			//Move balls
 			if(!xWallCollision(ball)){
 				ball.setX(ball.getX() + ball.getVx() * deltaT);
 			} else {
@@ -61,7 +63,8 @@ public final class BouncingBalls extends Animator {
 
 		}
 
-		if(isColliding(b1,b2)){
+		if(willCollide(b1,b2)){
+			manageCollision(b1,b2);
 			setNewVelocity();
 		}
 
@@ -113,29 +116,38 @@ public final class BouncingBalls extends Animator {
 		return yWallCollide;
 	}
 
-	//Return true if balls are overlapping.
-	public boolean isColliding(IBall b1,IBall b2) {
+	//Return true if balls will overlap next step.
+	public boolean willCollide(IBall b1, IBall b2) {
+		double rs = b1.getR() + b2.getR();
+		double deltaX = Math.abs(b1.getX() + b1.getVx() * deltaT - b2.getX() + b2.getVx() * deltaT);
+		double deltaY = Math.abs(b1.getY() + b1.getVy() * deltaT - b2.getY() + b2.getVy() * deltaT);
+		double nextStepCenterDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		return (nextStepCenterDistances <= rs);
+	}
+
+	// Moves balls a fraction of the distance
+	public void manageCollision(IBall b1, IBall b2){
 
 		double rs = b1.getR() + b2.getR();
-		double deltaX = Math.abs(b1.getX() - b2.getX());
-		double deltaY = Math.abs(b1.getY() - b2.getY());
+		double deltaX = Math.abs(b1.getX() + b1.getVx() * deltaT*0.1 - b2.getX() + b2.getVx() * deltaT*0.1);
+		double deltaY = Math.abs(b1.getY() + b1.getVy() * deltaT*0.1 - b2.getY() + b2.getVy() * deltaT*0.1);
 
 		double centerDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-		if((centerDistances <= rs)) {
-			while((centerDistances <= rs)) {
 
-				b1.setX(b1.getX()-b1.getVx()*deltaT*0.1);
-				b1.setY(b1.getY()-b1.getVy()*deltaT*0.1);
-				b2.setX(b2.getX()-b2.getVx()*deltaT*0.1);
-				b2.setY(b2.getY()-b2.getVy()*deltaT*0.1);
-
-				deltaX = Math.abs(b1.getX() - b2.getX());
-				deltaY = Math.abs(b1.getY() - b2.getY());
-				centerDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		while((centerDistances < rs)) {
+			if(!xWallCollision(b1)|| !yWallCollision(b1)) {
+				b1.setX(b1.getX() - b1.getVx() * deltaT * 0.1);
+				b1.setY(b1.getY() - b1.getVy() * deltaT * 0.1);
 			}
-			return true;
+			if(!xWallCollision(b2) || !yWallCollision(b2)) {
+				b2.setX(b2.getX() - b2.getVx() * deltaT * 0.1);
+				b2.setY(b2.getY() - b2.getVy() * deltaT * 0.1);
+			}
+			deltaX = Math.abs(b1.getX() + b1.getVx() * deltaT*0.1 - b2.getX() + b2.getVx() * deltaT*0.1);
+			deltaY = Math.abs(b1.getY() + b1.getVy() * deltaT*0.1 - b2.getY() + b2.getVy() * deltaT*0.1);
+			centerDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 		}
-		return false;
+
 	}
 
 	public void setNewVelocity() {
