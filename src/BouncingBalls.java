@@ -113,7 +113,7 @@ public final class BouncingBalls extends Animator {
 		return yWallCollide;
 	}
 
-	//Return true if balls will overlap next step.
+	//Returns true if balls are overlapping.
 	public boolean isColliding(IBall b1, IBall b2) {
 
 		//Combined ball radius
@@ -139,18 +139,23 @@ public final class BouncingBalls extends Animator {
 
 		//Distances in X and Y after ball has been moved back along its
 		//path by a fraction of its last step.
-		double deltaX = Math.abs(b1.getX() - b1.getVx() * deltaT*0.1 - b2.getX() - b2.getVx() * deltaT*0.1);
-		double deltaY = Math.abs(b1.getY() - b1.getVy() * deltaT*0.1 - b2.getY() - b2.getVy() * deltaT*0.1);
+		double deltaX = Math.abs(b1.getX() - b1.getVx()*deltaT*0.1 - b2.getX() - b2.getVx()*deltaT*0.1);
+		double deltaY = Math.abs(b1.getY() - b1.getVy()*deltaT*0.1 - b2.getY() - b2.getVy()*deltaT*0.1);
 
 		//Distance from ball center to ball center.
 		double centerDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
 		//If the center distance is less than the radiuses move ball
 		while((centerDistances < rs)) {
-					b1.setX(b1.getX() - b1.getVx() * deltaT * 0.1);
-					b1.setY(b1.getY() - b1.getVy() * deltaT * 0.1);
-					b2.setX(b2.getX() - b2.getVx() * deltaT * 0.1);
-					b2.setY(b2.getY() - b2.getVy() * deltaT * 0.1);
+
+			if(!xWallCollision(b1) || !yWallCollision(b1)) {
+				b1.setX(b1.getX() - b1.getVx() * deltaT * 0.1);
+				b1.setY(b1.getY() - b1.getVy() * deltaT * 0.1);
+			}
+			if(!xWallCollision(b2) || yWallCollision(b2)){
+				b2.setX(b2.getX() - b2.getVx() * deltaT * 0.1);
+				b2.setY(b2.getY() - b2.getVy() * deltaT * 0.1);
+			}
 
 			//Set next step
 			deltaX = Math.abs(b1.getX() - b1.getVx() * deltaT*0.1 - b2.getX() - b2.getVx() * deltaT*0.1);
