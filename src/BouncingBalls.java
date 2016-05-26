@@ -37,10 +37,8 @@ public final class BouncingBalls extends Animator {
 		//Checks for collision
 
 		for(IBall ball : ballList) {
-			// Apply gravity.
             //if(!isColliding(b1,b2)) {
                 ball.setVy(ball.getVy() - gravity);
-            //}
 
 			//Move balls
 			ball.setX(ball.getX() + ball.getVx() * deltaT);
@@ -56,6 +54,7 @@ public final class BouncingBalls extends Animator {
 			}
 		}
 
+        //Collision check
         if(isColliding(b1,b2)){
             manageCollision(b1,b2);
             setNewVelocity();
@@ -160,9 +159,6 @@ public final class BouncingBalls extends Animator {
 
 		double stepFraction = 0.1;
 		//Combined ball radius
-
-		boolean a = false;
-		boolean b = false;
 
 		//If the center distance is less than the radiuses move ball
 		while((isColliding(b1,b2))) {
