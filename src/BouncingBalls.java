@@ -40,15 +40,15 @@ public final class BouncingBalls extends Animator {
 			ball.setVy(ball.getVy()- gravity);
 
 			//Move balls
-			if(!xWallCollision(ball)){
-				ball.setX(ball.getX() + ball.getVx() * deltaT);
-			} else {
+			ball.setX(ball.getX() + ball.getVx() * deltaT);
+			if(xWallCollision(ball)){
 				ball.setVx(ball.getVx()*-1);
+				manageXWallCollision(ball);
 			}
-			if(!yWallCollision(ball)){
-				ball.setY(ball.getY() + ball.getVy() * deltaT);
-			} else {
+			ball.setY(ball.getY() + ball.getVy() * deltaT);
+			if(yWallCollision(ball)){
 				ball.setVy(ball.getVy()*-1);
+				manageYWallCollision(ball);
 			}
 		}
 		//Checks for collision
@@ -75,18 +75,33 @@ public final class BouncingBalls extends Animator {
 		double vx = ball.getVx();
 
 		//Ball X Coordinate after next step.
-		double nextXStep = ball.getX() + vx * deltaT;
+		double loc = ball.getX();
 
 		//If next step leaves the room moves to wall.
-		if (nextXStep < r) {
-			ball.setX(r);
+		if (loc < r) {
 			xWallCollide = true;
-		} else if (nextXStep > (modelWidth - r)) {
-			ball.setX(modelWidth - r);
+		} else if (loc > (modelWidth - r)) {
 			xWallCollide = true;
 		}
 		//Returns true when ball was about to leave room.
 		return xWallCollide;
+	}
+	public void manageXWallCollision(IBall ball) {
+
+		//Ball radius.
+		double r = ball.getR();
+
+		//Ball X velocity.
+		double vx = ball.getVx();
+
+		//Ball X Coordinate after next step.
+		double loc = ball.getX();
+
+		if (loc < r) {
+			ball.setX(r);
+		} else if (loc > (modelWidth - r)) {
+			ball.setX(modelWidth - r);
+		}
 	}
 
 	//Returns true if the ball will exit the area along the Y axis
@@ -101,17 +116,35 @@ public final class BouncingBalls extends Animator {
 		double vy = ball.getVy();
 
 		//Ball Y Coordinate after next step.
-		double nextYStep = ball.getY()+ vy * deltaT;
-		if(nextYStep < r) {
-			ball.setY(r);
+		double loc = ball.getY();
+
+		if(loc < r) {
 			yWallCollide = true;
-		} else if( nextYStep > (modelHeight - r) ) {
-			ball.setY(modelHeight - r);
+		} else if( loc > (modelHeight - r) ) {
 			yWallCollide = true;
 		}
 		//Returns true when ball was about to leave room.
 		return yWallCollide;
 	}
+
+	public void manageYWallCollision( IBall ball) {
+		//Ball radius.
+		double r = ball.getR();
+
+		//Ball Y velocity.
+		double vy = ball.getVy();
+
+		//Ball Y Coordinate after next step.
+		double loc = ball.getY();
+
+		if(loc < r) {
+			ball.setY(r);
+		} else if( loc > (modelHeight - r) ) {
+			ball.setY(modelHeight - r);
+		}
+	}
+
+
 
 	//Returns true if balls are overlapping.
 	public boolean isColliding(IBall b1, IBall b2) {
@@ -148,11 +181,11 @@ public final class BouncingBalls extends Animator {
 		//If the center distance is less than the radiuses move ball
 		while((centerDistances < rs)) {
 
-			if(!xWallCollision(b1) || !yWallCollision(b1)) {
+			if(!(xWallCollision(b1) || yWallCollision(b1))) {
 				b1.setX(b1.getX() - b1.getVx() * deltaT * 0.1);
 				b1.setY(b1.getY() - b1.getVy() * deltaT * 0.1);
 			}
-			if(!xWallCollision(b2) || yWallCollision(b2)){
+			if(!(xWallCollision(b2) || yWallCollision(b2))){
 				b2.setX(b2.getX() - b2.getVx() * deltaT * 0.1);
 				b2.setY(b2.getY() - b2.getVy() * deltaT * 0.1);
 			}
