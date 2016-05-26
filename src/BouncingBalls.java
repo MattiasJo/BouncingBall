@@ -11,7 +11,6 @@ public final class BouncingBalls extends Animator {
 	private double modelWidth, modelHeight;
 	private double deltaT;
 	private final double gravity = 9.81/20;
-	private boolean stillColliding = false;
 	IBall b1,b2;
 
 	@Override
@@ -25,7 +24,6 @@ public final class BouncingBalls extends Animator {
 		ballList.add(b1);
 		ballList.add(b2);
 	}
-	IBall oBall;
 	@Override
 	protected void drawFrame(Graphics2D g) {
 
@@ -38,13 +36,6 @@ public final class BouncingBalls extends Animator {
 		g.translate(0, -modelHeight);
 
 		for(IBall ball : ballList) {
-
-			for(IBall otherBall: ballList) {
-				if(ball != otherBall) {
-					oBall = otherBall;
-				}
-			}
-
 			// Apply gravity.
 			ball.setVy(ball.getVy()- gravity);
 
@@ -54,27 +45,17 @@ public final class BouncingBalls extends Animator {
 			} else {
 				ball.setVx(ball.getVx()*-1);
 			}
-
 			if(!yWallCollision(ball)){
 				ball.setY(ball.getY() + ball.getVy() * deltaT);
 			} else {
 				ball.setVy(ball.getVy()*-1);
 			}
-
 		}
-
-		if(willCollide(b1,b2)){
+		//Checks for collision
+		if(isColliding(b1,b2)){
 			manageCollision(b1,b2);
 			setNewVelocity();
 		}
-
-		/*if(isColliding(b1,b2) && !stillColliding){
-			stillColliding = true;
-			setNewVelocity();
-		} else if(!isColliding(b1,b2)) {
-			stillColliding = false;
-		}*/
-
 		//Paint balls
 		for(IBall ball : ballList) {
 			g.setColor(Color.BLACK);
@@ -82,14 +63,21 @@ public final class BouncingBalls extends Animator {
 		}
 	}
 
-	//Returns true if the ball will exit the area next
-	//step and instead moves it to the wall.
+	//Returns true if the ball will exit the area along the X axis
+	// after the next step and instead moves it to the wall.
 	public boolean xWallCollision(IBall ball) {
 		boolean xWallCollide = false;
+
+		//Ball radius.
 		double r = ball.getR();
+
+		//Ball X velocity.
 		double vx = ball.getVx();
 
+		//Ball X Coordinate after next step.
 		double nextXStep = ball.getX() + vx * deltaT;
+
+		//If next step leaves the room moves to wall.
 		if (nextXStep < r) {
 			ball.setX(r);
 			xWallCollide = true;
@@ -97,14 +85,22 @@ public final class BouncingBalls extends Animator {
 			ball.setX(modelWidth - r);
 			xWallCollide = true;
 		}
+		//Returns true when ball was about to leave room.
 		return xWallCollide;
 	}
 
+	//Returns true if the ball will exit the area along the Y axis
+	// after the next step and instead moves it to the wall.
 	public boolean yWallCollision( IBall ball) {
 		boolean yWallCollide = false;
+
+		//Ball radius.
 		double r = ball.getR();
+
+		//Ball Y velocity.
 		double vy = ball.getVy();
 
+		//Ball Y Coordinate after next step.
 		double nextYStep = ball.getY()+ vy * deltaT;
 		if(nextYStep < r) {
 			ball.setY(r);
@@ -113,45 +109,60 @@ public final class BouncingBalls extends Animator {
 			ball.setY(modelHeight - r);
 			yWallCollide = true;
 		}
+		//Returns true when ball was about to leave room.
 		return yWallCollide;
 	}
 
 	//Return true if balls will overlap next step.
-	public boolean willCollide(IBall b1, IBall b2) {
+	public boolean isColliding(IBall b1, IBall b2) {
+
+		//Combined ball radius
 		double rs = b1.getR() + b2.getR();
-		double deltaX = Math.abs(b1.getX() + b1.getVx() * deltaT - b2.getX() + b2.getVx() * deltaT);
-		double deltaY = Math.abs(b1.getY() + b1.getVy() * deltaT - b2.getY() + b2.getVy() * deltaT);
-		double nextStepCenterDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-		return (nextStepCenterDistances <= rs);
-	}
 
-	// Moves balls a fraction of the distance
-	public void manageCollision(IBall b1, IBall b2){
+		//Distances in X and Y
+		double deltaX = Math.abs(b1.getX() - b2.getX());
+		double deltaY = Math.abs(b1.getY() - b2.getY());
 
-		double rs = b1.getR() + b2.getR();
-		double deltaX = Math.abs(b1.getX() + b1.getVx() * deltaT*0.1 - b2.getX() + b2.getVx() * deltaT*0.1);
-		double deltaY = Math.abs(b1.getY() + b1.getVy() * deltaT*0.1 - b2.getY() + b2.getVy() * deltaT*0.1);
-
+		//Distance from ball center to ball center.
 		double centerDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
+		//Returns true when balls are centers are closer
+		//then their combined radius.
+		return (centerDistances <= rs);
+	}
+
+	//Move ball back along its path untill no longer colliding.
+	public void manageCollision(IBall b1, IBall b2){
+
+		//Combined ball radius
+		double rs = b1.getR() + b2.getR();
+
+		//Distances in X and Y after ball has been moved back along its
+		//path by a fraction of its last step.
+		double deltaX = Math.abs(b1.getX() - b1.getVx() * deltaT*0.1 - b2.getX() - b2.getVx() * deltaT*0.1);
+		double deltaY = Math.abs(b1.getY() - b1.getVy() * deltaT*0.1 - b2.getY() - b2.getVy() * deltaT*0.1);
+
+		//Distance from ball center to ball center.
+		double centerDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+
+		//If the center distance is less than the radiuses move ball
 		while((centerDistances < rs)) {
-			if(!xWallCollision(b1)|| !yWallCollision(b1)) {
-				b1.setX(b1.getX() - b1.getVx() * deltaT * 0.1);
-				b1.setY(b1.getY() - b1.getVy() * deltaT * 0.1);
-			}
-			if(!xWallCollision(b2) || !yWallCollision(b2)) {
-				b2.setX(b2.getX() - b2.getVx() * deltaT * 0.1);
-				b2.setY(b2.getY() - b2.getVy() * deltaT * 0.1);
-			}
-			deltaX = Math.abs(b1.getX() + b1.getVx() * deltaT*0.1 - b2.getX() + b2.getVx() * deltaT*0.1);
-			deltaY = Math.abs(b1.getY() + b1.getVy() * deltaT*0.1 - b2.getY() + b2.getVy() * deltaT*0.1);
+					b1.setX(b1.getX() - b1.getVx() * deltaT * 0.1);
+					b1.setY(b1.getY() - b1.getVy() * deltaT * 0.1);
+					b2.setX(b2.getX() - b2.getVx() * deltaT * 0.1);
+					b2.setY(b2.getY() - b2.getVy() * deltaT * 0.1);
+
+			//Set next step
+			deltaX = Math.abs(b1.getX() - b1.getVx() * deltaT*0.1 - b2.getX() - b2.getVx() * deltaT*0.1);
+			deltaY = Math.abs(b1.getY() - b1.getVy() * deltaT*0.1 - b2.getY() - b2.getVy() * deltaT*0.1);
+
+			//New center distance
 			centerDistances = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 		}
-
 	}
 
 	public void setNewVelocity() {
-		//Distances in X and Y from ball center, to ball center.
+		//Distances in X and Y from ball center to ball center.
 		double deltaX = Math.abs(b1.getX()-b2.getX());
 		double deltaY = Math.abs(b1.getY()-b2.getY());
 
@@ -185,6 +196,7 @@ public final class BouncingBalls extends Animator {
 		b2.setVy(u2x*Math.sin(phi)+v2y*Math.sin((Math.PI/2)+phi));
 	}
 
+	//Determines angle for velocity vector.
 	public double determineAngle(IBall ball) {
 		if(ball.getVx() < 0 && ball.getVy() < 0) {
 			return ( 3 * Math.PI/2 - Math.atan(ball.getVy()/ball.getVx()) );

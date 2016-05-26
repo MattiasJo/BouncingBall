@@ -15,6 +15,8 @@ public class Ball implements IBall{
         this.vy = vy;
         this.r = r;
     }
+
+    //----Getters and Setters----
     public double getX() {
         return x;
     }
@@ -51,8 +53,10 @@ public class Ball implements IBall{
         return r;
     }
 
+    //Placeholder mass based on ball radius.
     public double getMass(){return r*2;}
 
+    //Returns ball information for animation purposes.
     public Ellipse2D getBall(){return new Ellipse2D.Double(x - r, y - r, 2 * r, 2 * r);}
 }
 
