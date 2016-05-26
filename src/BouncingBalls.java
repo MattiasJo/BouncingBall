@@ -36,10 +36,11 @@ public final class BouncingBalls extends Animator {
 		g.translate(0, -modelHeight);
 		//Checks for collision
 
-
 		for(IBall ball : ballList) {
 			// Apply gravity.
-			ball.setVy(ball.getVy() - gravity);
+            //if(!isColliding(b1,b2)) {
+                ball.setVy(ball.getVy() - gravity);
+            //}
 
 			//Move balls
 			ball.setX(ball.getX() + ball.getVx() * deltaT);
@@ -54,11 +55,11 @@ public final class BouncingBalls extends Animator {
 				manageYWallCollision(ball);
 			}
 		}
-		if(isColliding(b1,b2)){
-			manageCollision(b1,b2);
-			setNewVelocity();
-		}
 
+        if(isColliding(b1,b2)){
+            manageCollision(b1,b2);
+            setNewVelocity();
+        }
 		//Paint balls
 		for(IBall ball : ballList) {
 			g.setColor(Color.BLACK);
@@ -66,8 +67,7 @@ public final class BouncingBalls extends Animator {
 		}
 	}
 
-	//Returns true if the ball will exit the area along the X axis
-	// after the next step and instead moves it to the wall.
+	//Returns true if the ball has exited the area along the X axis.
 	public boolean xWallCollision(IBall ball) {
 		boolean xWallCollide = false;
 
@@ -83,9 +83,10 @@ public final class BouncingBalls extends Animator {
 		} else if (loc > (modelWidth - r)) {
 			xWallCollide = true;
 		}
-		//Returns true when ball was about to leave room.
+        //Returns true if the ball has left the room.
 		return xWallCollide;
 	}
+
 	public void manageXWallCollision(IBall ball) {
 
 		//Ball radius.
@@ -94,6 +95,7 @@ public final class BouncingBalls extends Animator {
 		//Ball X Coordinate.
 		double loc = ball.getX();
 
+        //Moves the ball to the edge of the wall.
 		if (loc < r) {
 			ball.setX(r);
 		} else if (loc > (modelWidth - r)) {
@@ -101,8 +103,7 @@ public final class BouncingBalls extends Animator {
 		}
 	}
 
-	//Returns true if the ball will exit the area along the Y axis
-	// after the next step and instead moves it to the wall.
+	//Returns true if the ball will exited the area along the Y.
 	public boolean yWallCollision( IBall ball) {
 		boolean yWallCollide = false;
 
@@ -117,17 +118,18 @@ public final class BouncingBalls extends Animator {
 		} else if( loc > (modelHeight - r) ) {
 			yWallCollide = true;
 		}
-		//Returns true when ball was about to leave room.
+		//Returns true if the ball has left the room.
 		return yWallCollide;
 	}
 
 	public void manageYWallCollision( IBall ball) {
 		//Ball radius.
 		double r = ball.getR();
-		
+
 		//Ball Y Coordinate
 		double loc = ball.getY();
 
+        //Moves the ball to the edge of the wall.
 		if(loc < r) {
 			ball.setY(r);
 		} else if( loc > (modelHeight - r) ) {
@@ -165,26 +167,17 @@ public final class BouncingBalls extends Animator {
 		//If the center distance is less than the radiuses move ball
 		while((isColliding(b1,b2))) {
 
-			if(!(xWallCollision(b1) || yWallCollision(b1))) {
-				b1.setX(b1.getX() - b1.getVx() * deltaT * stepFraction);
+			if(!xWallCollision(b1)) {
+                b1.setX(b1.getX() - b1.getVx() * deltaT * stepFraction);
+            }
+            if(!yWallCollision(b1)) {
 				b1.setY(b1.getY() - b1.getVy() * deltaT * stepFraction);
-				a = true;
-			} else {
-				b2.setX(b2.getX() - b2.getVx()* deltaT * stepFraction);
-				b2.setY(b2.getY() - b2.getVy()* deltaT * stepFraction);
-				b = true;
 			}
-
-			if (!(xWallCollision(b2) || yWallCollision(b2))){
-				if(!b) {
-					b2.setX(b2.getX() - b2.getVx() * deltaT * stepFraction);
-					b2.setY(b2.getY() - b2.getVy() * deltaT * stepFraction);
-				}
-			} else {
-				if(!a) {
-					b1.setX(b1.getX() - b1.getVx() * deltaT * stepFraction);
-					b1.setY(b1.getY() - b1.getVy() * deltaT * stepFraction);
-				}
+            if (!xWallCollision(b2)){
+                b2.setX(b2.getX() - b2.getVx() * deltaT * stepFraction);
+            }
+            if(!yWallCollision(b2)){
+                b2.setY(b2.getY() - b2.getVy() * deltaT * stepFraction);
 			}
 		}
 	}
@@ -227,12 +220,19 @@ public final class BouncingBalls extends Animator {
 
 	//Determines angle for velocity vector.
 	public double determineAngle(IBall ball) {
-		if(ball.getVx() < 0 && ball.getVy() < 0) {
-			return ( 3 * Math.PI/2 - Math.atan(ball.getVy()/ball.getVx()) );
-		} else if(ball.getVx() > 0 && ball.getVy() < 0) {
+		// Fourth quadrant
+		if(ball.getVx() > 0 && ball.getVy() < 0) {
 			return ( 2 * Math.PI - Math.atan(ball.getVy()/ball.getVx()) );
+
+            // Third quadrant
+		} else if(ball.getVx() < 0 && ball.getVy() < 0) {
+			return ( 3 * Math.PI/2 - Math.atan(ball.getVy()/ball.getVx()) );
+
+			//Second quadrant
 		} else if(ball.getVx() < 0 && ball.getVy() > 0) {
 			return ( Math.PI - Math.atan(ball.getVy()/ball.getVx()) );
+
+            //First quadrant
 		} else {
 			return ( Math.atan(ball.getVy()/ball.getVx()) );
 		}
